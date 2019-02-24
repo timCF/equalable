@@ -1,0 +1,3 @@
+%{
+  "typable": {:hex, :typable, "0.1.1", "bc7c87a361e5c67bdba5dfd4c7e33c36dc0b44166bd06fb578aa31ce804274fe", [:mix], [], "hexpm"},
+}
