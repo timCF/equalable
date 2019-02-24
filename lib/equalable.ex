@@ -37,7 +37,25 @@ defmodule Eq do
   true
   iex> Eq.equal?([1, 2, 3], [1, 2])
   false
-  iex> Eq.equal?([[1, 2, 3], [4]], [[1, 2, 3], 4])
+  iex> Eq.equal?([[1, 2, 3], [4]], [[1, 2, 3], [5]])
+  false
+
+  iex> Eq.equal?({1, 2, 3}, {1, 2, 3})
+  true
+  iex> Eq.equal?({{1, 2, 3}, {4}}, {{1, 2, 3}, {4}})
+  true
+  iex> Eq.equal?({1, 2, 3}, {1, 2})
+  false
+  iex> Eq.equal?({{1, 2, 3}, {4}}, {{1, 2, 3}, {5}})
+  false
+
+  iex> Eq.equal?(%{a: 1, b: 2}, %{a: 1, b: 2})
+  true
+  iex> Eq.equal?(%{a: 1, b: %{c: 2}}, %{a: 1, b: %{c: 2}})
+  true
+  iex> Eq.equal?(%{a: 1, b: 2}, %{a: 1})
+  false
+  iex> Eq.equal?(%{a: 1, b: 2}, %{a: 1, c: 2})
   false
   ```
   """
@@ -61,7 +79,7 @@ defmodule Eq do
   end
 
   @doc """
-  Helper to define symmetric equivalence relation, accepts 2 types (left type + right type)
+  Helper to define symmetric equivalence relation, accepts 2 types (`left` type  and `right` type)
   and block of code where relation is described via `left` and `right` variables
   """
   defmacro defequalable(quoted_left_type, [to: quoted_right_type], do: code) do
@@ -203,6 +221,33 @@ defmodule Equalable.ErlangType.Impl do
 
   defequalable List, to: List do
     if length(left) == length(right) do
+      left
+      |> Stream.zip(right)
+      |> Enum.reduce_while(true, fn {lx, rx}, true ->
+        lx
+        |> Eq.equal?(rx)
+        |> case do
+          true = acc -> {:cont, acc}
+          false = acc -> {:halt, acc}
+        end
+      end)
+    else
+      false
+    end
+  end
+
+  defequalable Tuple, to: Tuple do
+    if tuple_size(left) == tuple_size(right) do
+      left
+      |> Tuple.to_list()
+      |> Eq.equal?(right |> Tuple.to_list())
+    else
+      false
+    end
+  end
+
+  defequalable Map, to: Map do
+    if map_size(left) == map_size(right) do
       left
       |> Stream.zip(right)
       |> Enum.reduce_while(true, fn {lx, rx}, true ->
