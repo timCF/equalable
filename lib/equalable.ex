@@ -70,17 +70,71 @@ defmodule Eq do
   end
 
   @doc """
-  Imports `Eq.defequalable/3` macro helper
+  Imports `Eq.defequalable/3` and `Eq.defequalable/2` macro helpers
+
+  ## Examples
+
+  ```
+  iex> use Eq
+  Eq
+  ```
   """
   defmacro __using__(_) do
     quote do
-      import Eq, only: [defequalable: 3]
+      import Eq, only: [defequalable: 3, defequalable: 2]
     end
   end
 
   @doc """
   Helper to define symmetric equivalence relation, accepts 2 types (`left` type  and `right` type)
   and block of code where relation is described via `left` and `right` variables
+
+  ## Examples
+
+  ```
+  iex> quote do
+  ...>   use Eq
+  ...>   defmodule Foo do
+  ...>     defstruct [:value, :meta]
+  ...>   end
+  ...>   defmodule Bar do
+  ...>     defstruct [:value, :meta]
+  ...>   end
+  ...>   defequalable Foo, to: Foo do
+  ...>     %Foo{value: lv} = var!(left)
+  ...>     %Foo{value: rv} = var!(right)
+  ...>     Eq.equal?(lv, rv)
+  ...>   end
+  ...>   defequalable Foo, to: Bar do
+  ...>     %Foo{value: lv} = var!(left)
+  ...>     %Bar{value: rv} = var!(right)
+  ...>     Eq.equal?(lv, rv)
+  ...>   end
+  ...>   defequalable Foo, to: Integer do
+  ...>     %Foo{value: lv} = var!(left)
+  ...>     Eq.equal?(lv, var!(right))
+  ...>   end
+  ...> end
+  ...> |> Code.compile_quoted
+  iex> quote do
+  ...>   %Foo{value: 1, meta: 1}
+  ...>   |> Eq.equal?(%Foo{value: 1, meta: 2})
+  ...> end
+  ...> |> Code.eval_quoted
+  {true, []}
+  iex> quote do
+  ...>   %Foo{value: 1, meta: 1}
+  ...>   |> Eq.equal?(%Bar{value: 1, meta: 2})
+  ...> end
+  ...> |> Code.eval_quoted
+  {true, []}
+  iex> quote do
+  ...>   %Foo{value: 1, meta: 1}
+  ...>   |> Eq.equal?(1)
+  ...> end
+  ...> |> Code.eval_quoted
+  {true, []}
+  ```
   """
   defmacro defequalable(quoted_left_type, [to: quoted_right_type], do: code) do
     {left_type, []} = Code.eval_quoted(quoted_left_type, [], __CALLER__)
@@ -126,140 +180,15 @@ defmodule Eq do
       end
     end
   end
-end
 
-defmodule Equalable.ErlangType.Defs do
-  use Eq
-
-  @scalars [
-    Atom,
-    BitString,
-    Float,
-    Function,
-    Integer,
-    PID,
-    Port,
-    Reference
-  ]
-
-  @collections [
-    Tuple,
-    List,
-    Map
-  ]
-
-  defmacro define_scalars do
-    code =
-      @scalars
-      |> Stream.with_index()
-      |> Enum.flat_map(fn {left_type, left_index} ->
-        {_, [_ | _] = right_list} = Enum.split(@scalars, left_index)
-
-        right_list
-        |> Enum.map(fn right_type ->
-          quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
-            end
-          end
-        end)
-      end)
-
+  @doc """
+  Shotrcut for `Eq.defequalable/3` where `left` type = `right` type
+  """
+  defmacro defequalable(quoted_type, do: code) do
     quote do
-      (unquote_splicing(code))
-    end
-  end
-
-  defmacro define_collections do
-    code =
-      @collections
-      |> Stream.with_index()
-      |> Enum.flat_map(fn {left_type, left_index} ->
-        {_, right_list} = Enum.split(@collections, left_index + 1)
-
-        right_list
-        |> Enum.map(fn right_type ->
-          quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
-            end
-          end
-        end)
-      end)
-
-    quote do
-      (unquote_splicing(code))
-    end
-  end
-
-  defmacro define_scalars_collections do
-    code =
-      @scalars
-      |> Enum.flat_map(fn left_type ->
-        @collections
-        |> Enum.map(fn right_type ->
-          quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
-            end
-          end
-        end)
-      end)
-
-    quote do
-      (unquote_splicing(code))
-    end
-  end
-end
-
-defmodule Equalable.ErlangType.Impl do
-  use Eq
-  require Equalable.ErlangType.Defs, as: Helper
-  Helper.define_scalars()
-  Helper.define_collections()
-  Helper.define_scalars_collections()
-
-  defequalable List, to: List do
-    if length(left) == length(right) do
-      left
-      |> Stream.zip(right)
-      |> Enum.reduce_while(true, fn {lx, rx}, true ->
-        lx
-        |> Eq.equal?(rx)
-        |> case do
-          true = acc -> {:cont, acc}
-          false = acc -> {:halt, acc}
-        end
-      end)
-    else
-      false
-    end
-  end
-
-  defequalable Tuple, to: Tuple do
-    if tuple_size(left) == tuple_size(right) do
-      left
-      |> Tuple.to_list()
-      |> Eq.equal?(right |> Tuple.to_list())
-    else
-      false
-    end
-  end
-
-  defequalable Map, to: Map do
-    if map_size(left) == map_size(right) do
-      left
-      |> Stream.zip(right)
-      |> Enum.reduce_while(true, fn {lx, rx}, true ->
-        lx
-        |> Eq.equal?(rx)
-        |> case do
-          true = acc -> {:cont, acc}
-          false = acc -> {:halt, acc}
-        end
-      end)
-    else
-      false
+      defequalable unquote(quoted_type), to: unquote(quoted_type) do
+        unquote(code)
+      end
     end
   end
 end

@@ -7,6 +7,7 @@ defmodule Equalable.MixProject do
       version: "VERSION" |> File.read!() |> String.trim(),
       elixir: "~> 1.8",
       start_permanent: Mix.env() == :prod,
+      consolidate_protocols: Mix.env() != :test,
       deps: deps(),
       # excoveralls
       test_coverage: [tool: ExCoveralls],

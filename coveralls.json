@@ -5,12 +5,7 @@
   },
   "skip_files": [
     "test/*",
-
-    "lib/equalable_web.ex",
-    "lib/equalable/application.ex",
-    "lib/equalable/repo.ex",
-
-    "lib/equalable_web/endpoint.ex",
-    "lib/equalable_web/router.ex"
+    "lib/equalable/erlang_type/defs.ex",
+    "lib/equalable/erlang_type/impl.ex"
   ]
 }
