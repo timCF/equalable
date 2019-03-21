@@ -5,16 +5,6 @@ defmodule Equalable.ErlangType.Impl do
   Helper.define_collections()
   Helper.define_scalars_collections()
 
-  (Helper.scalars() ++ Helper.collections())
-  |> Enum.each(fn type ->
-    defimpl Equalable, for: type do
-      def equal?(v) do
-        "Can not apply Equalable protocol to plain value #{inspect(v)} of type #{unquote(type)}, use `Eq.defequalable/3` or `Eq.defequalable/2` macro helper to implement protocol"
-        |> raise
-      end
-    end
-  end)
-
   defequalable left :: List, to: right :: List do
     if length(left) == length(right) do
       left

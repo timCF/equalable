@@ -59,13 +59,34 @@ defmodule Eq do
   false
   iex> Eq.equal?(%{a: 1, b: 2}, %{a: 1, c: 2})
   false
+
+  iex> a = 1
+  iex> x = URI.parse("http://hello.world")
+  iex> y = URI.parse("http://foo.bar")
+  iex> z = URI.parse("http://foo.bar")
+  iex> Eq.equal?(a, x)
+  false
+  iex> Eq.equal?(x, a)
+  false
+  iex> Eq.equal?(x, y)
+  false
+  iex> Eq.equal?(y, x)
+  false
+  iex> Eq.equal?(y, z)
+  true
+  iex> Eq.equal?(z, y)
+  true
   ```
   """
   @spec equal?(left, right) :: bool
   def equal?(left, right) do
     lr_type =
-      [Equalable, Type, Typable.type_of(left), To, Typable.type_of(right)]
-      |> Module.safe_concat()
+      try do
+        [Equalable, Type, Typable.type_of(left), To, Typable.type_of(right)]
+        |> Module.safe_concat()
+      rescue
+        ArgumentError -> Equalable.ErlangType.Any
+      end
 
     %{__struct__: lr_type, left: left, right: right}
     |> Equalable.equal?()
@@ -178,7 +199,9 @@ defmodule Eq do
     lr_impl =
       quote do
         defmodule unquote(lr_type) do
-          defstruct [:left, :right]
+          @fields [:left, :right]
+          @enforce_keys @fields
+          defstruct @fields
         end
 
         defimpl Equalable, for: unquote(lr_type) do
@@ -195,7 +218,9 @@ defmodule Eq do
         unquote(lr_impl)
 
         defmodule unquote(rl_type) do
-          defstruct [:left, :right]
+          @fields [:left, :right]
+          @enforce_keys @fields
+          defstruct @fields
         end
 
         defimpl Equalable, for: unquote(rl_type) do
