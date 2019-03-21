@@ -18,6 +18,8 @@ defmodule Eq do
 
   @doc """
   Is left equivalent to right?
+  Here are provided examples for standard Erlang types,
+  for more complex examples look `defequalable/3` documetation.
 
   ## Examples
 
@@ -70,6 +72,24 @@ defmodule Eq do
   end
 
   @doc """
+  Is left not equivalent to right?
+  For more complex examples look `equal?/2` and `defequalable/3` documetation.
+
+  ## Examples
+
+  ```
+  iex> Eq.not_equal?(1, 0)
+  true
+  iex> Eq.not_equal?(1, 1)
+  false
+  ```
+  """
+  @spec not_equal?(left, right) :: bool
+  def not_equal?(left, right) do
+    not equal?(left, right)
+  end
+
+  @doc """
   Imports `Eq.defequalable/3` macro helpers
 
   ## Examples
@@ -86,8 +106,9 @@ defmodule Eq do
   end
 
   @doc """
-  Helper to define symmetric equivalence relation, accepts 2 types (`left` type  and `right` type)
-  and block of code where relation is described via `left` and `right` variables
+  Helper to define symmetric equivalence relation,
+  accepts two `term :: type` pairs
+  and block of code where relation is described.
 
   ## Examples
 
