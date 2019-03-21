@@ -70,7 +70,7 @@ defmodule Eq do
   end
 
   @doc """
-  Imports `Eq.defequalable/3` and `Eq.defequalable/2` macro helpers
+  Imports `Eq.defequalable/3` macro helpers
 
   ## Examples
 
@@ -81,7 +81,7 @@ defmodule Eq do
   """
   defmacro __using__(_) do
     quote do
-      import Eq, only: [defequalable: 3, defequalable: 2]
+      import Eq, only: [defequalable: 3]
     end
   end
 
@@ -100,43 +100,48 @@ defmodule Eq do
   ...>   defmodule Bar do
   ...>     defstruct [:value, :meta]
   ...>   end
-  ...>   defequalable Foo, to: Foo do
-  ...>     %Foo{value: lv} = var!(left)
-  ...>     %Foo{value: rv} = var!(right)
-  ...>     Eq.equal?(lv, rv)
+  ...>   defequalable %Foo{value: left} :: Foo, to: %Foo{value: right} :: Foo do
+  ...>     Eq.equal?(left, right)
   ...>   end
-  ...>   defequalable Foo, to: Bar do
-  ...>     %Foo{value: lv} = var!(left)
-  ...>     %Bar{value: rv} = var!(right)
-  ...>     Eq.equal?(lv, rv)
+  ...>   defequalable %Foo{value: left} :: Foo, to: %Bar{value: right} :: Bar do
+  ...>     Eq.equal?(left, right)
   ...>   end
-  ...>   defequalable Foo, to: Integer do
-  ...>     %Foo{value: lv} = var!(left)
-  ...>     Eq.equal?(lv, var!(right))
+  ...>   defequalable %Foo{value: left} :: Foo, to: right :: Integer do
+  ...>     Eq.equal?(left, right)
   ...>   end
   ...> end
   ...> |> Code.compile_quoted
   iex> quote do
-  ...>   %Foo{value: 1, meta: 1}
-  ...>   |> Eq.equal?(%Foo{value: 1, meta: 2})
+  ...>   x = %Foo{value: 1, meta: 1}
+  ...>   y = %Foo{value: 1, meta: 2}
+  ...>   Eq.equal?(x, y) && Eq.equal?(y, x)
   ...> end
   ...> |> Code.eval_quoted
-  {true, []}
+  ...> |> elem(0)
+  true
   iex> quote do
-  ...>   %Foo{value: 1, meta: 1}
-  ...>   |> Eq.equal?(%Bar{value: 1, meta: 2})
+  ...>   x = %Foo{value: 1, meta: 1}
+  ...>   y = %Bar{value: 1, meta: 2}
+  ...>   Eq.equal?(x, y) && Eq.equal?(y, x)
   ...> end
   ...> |> Code.eval_quoted
-  {true, []}
+  ...> |> elem(0)
+  true
   iex> quote do
-  ...>   %Foo{value: 1, meta: 1}
-  ...>   |> Eq.equal?(1)
+  ...>   x = %Foo{value: 1, meta: 1}
+  ...>   y = 1
+  ...>   Eq.equal?(x, y) && Eq.equal?(y, x)
   ...> end
   ...> |> Code.eval_quoted
-  {true, []}
+  ...> |> elem(0)
+  true
   ```
   """
-  defmacro defequalable(quoted_left_type, [to: quoted_right_type], do: code) do
+  defmacro defequalable(
+             {:::, _, [left_expression, quoted_left_type]},
+             [to: {:::, _, [right_expression, quoted_right_type]}],
+             do: code
+           ) do
     {left_type, []} = Code.eval_quoted(quoted_left_type, [], __CALLER__)
 
     {right_type, []} = Code.eval_quoted(quoted_right_type, [], __CALLER__)
@@ -156,7 +161,7 @@ defmodule Eq do
         end
 
         defimpl Equalable, for: unquote(lr_type) do
-          def equal?(%unquote(lr_type){left: var!(left), right: var!(right)}) do
+          def equal?(%unquote(lr_type){left: unquote(left_expression), right: unquote(right_expression)}) do
             unquote(code)
           end
         end
@@ -173,21 +178,10 @@ defmodule Eq do
         end
 
         defimpl Equalable, for: unquote(rl_type) do
-          def equal?(%unquote(rl_type){left: var!(right), right: var!(left)}) do
+          def equal?(%unquote(rl_type){left: unquote(right_expression), right: unquote(left_expression)}) do
             unquote(code)
           end
         end
-      end
-    end
-  end
-
-  @doc """
-  Shotrcut for `Eq.defequalable/3` where `left` type = `right` type
-  """
-  defmacro defequalable(quoted_type, do: code) do
-    quote do
-      defequalable unquote(quoted_type), to: unquote(quoted_type) do
-        unquote(code)
       end
     end
   end

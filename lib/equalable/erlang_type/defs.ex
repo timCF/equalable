@@ -35,8 +35,8 @@ defmodule Equalable.ErlangType.Defs do
         right_list
         |> Enum.map(fn right_type ->
           quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
+            defequalable left :: unquote(left_type), to: right :: unquote(right_type) do
+              left == right
             end
           end
         end)
@@ -60,8 +60,8 @@ defmodule Equalable.ErlangType.Defs do
         right_list
         |> Enum.map(fn right_type ->
           quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
+            defequalable left :: unquote(left_type), to: right :: unquote(right_type) do
+              left == right
             end
           end
         end)
@@ -82,8 +82,8 @@ defmodule Equalable.ErlangType.Defs do
         collections()
         |> Enum.map(fn right_type ->
           quote do
-            defequalable unquote(left_type), to: unquote(right_type) do
-              var!(left) == var!(right)
+            defequalable left :: unquote(left_type), to: right :: unquote(right_type) do
+              left == right
             end
           end
         end)

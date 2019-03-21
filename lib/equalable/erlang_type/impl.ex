@@ -15,7 +15,7 @@ defmodule Equalable.ErlangType.Impl do
     end
   end)
 
-  defequalable List do
+  defequalable left :: List, to: right :: List do
     if length(left) == length(right) do
       left
       |> Stream.zip(right)
@@ -32,7 +32,7 @@ defmodule Equalable.ErlangType.Impl do
     end
   end
 
-  defequalable Tuple do
+  defequalable left :: Tuple, to: right :: Tuple do
     if tuple_size(left) == tuple_size(right) do
       left
       |> Tuple.to_list()
@@ -42,7 +42,7 @@ defmodule Equalable.ErlangType.Impl do
     end
   end
 
-  defequalable Map do
+  defequalable left :: Map, to: right :: Map do
     if map_size(left) == map_size(right) do
       left
       |> Stream.zip(right)
