@@ -142,13 +142,13 @@ defmodule Eq do
   ...>   defmodule Bar do
   ...>     defstruct [:value, :meta]
   ...>   end
-  ...>   defequalable %Foo{value: left} :: Foo, to: %Foo{value: right} :: Foo do
+  ...>   defequalable %Foo{value: left} :: Foo, %Foo{value: right} :: Foo do
   ...>     Eq.equal?(left, right)
   ...>   end
-  ...>   defequalable %Foo{value: left} :: Foo, to: %Bar{value: right} :: Bar do
+  ...>   defequalable %Foo{value: left} :: Foo, %Bar{value: right} :: Bar do
   ...>     Eq.equal?(left, right)
   ...>   end
-  ...>   defequalable %Foo{value: left} :: Foo, to: right :: Integer do
+  ...>   defequalable %Foo{value: left} :: Foo, right :: Integer do
   ...>     Eq.equal?(left, right)
   ...>   end
   ...> end
@@ -181,7 +181,7 @@ defmodule Eq do
   """
   defmacro defequalable(
              {:::, _, [left_expression, quoted_left_type]},
-             [to: {:::, _, [right_expression, quoted_right_type]}],
+             {:::, _, [right_expression, quoted_right_type]},
              do: code
            ) do
     {left_type, []} = Code.eval_quoted(quoted_left_type, [], __CALLER__)
