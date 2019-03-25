@@ -35,7 +35,7 @@ defmodule Equalable.MixProject do
       homepage_url: "https://github.com/timCF/equalable",
       docs: [main: "readme", extras: ["README.md"]],
       # hex.pm stuff
-      description: "Protocol which describes equivalence relation",
+      description: "Protocol which describes symmetric equivalence relation for pair of types",
       package: [
         licenses: ["Apache 2.0"],
         files: ["lib", "priv", "mix.exs", "README*", "VERSION*"],
