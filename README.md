@@ -1,6 +1,6 @@
 # Equalable
 
-Protocol which describes **symmetric** equivalence relation for pair of types. There are cases where we want to define equivalence relation between two terms not just by term values according standard Erlang/Elixir [equivalence rules](https://hexdocs.pm/elixir/Kernel.html#==/2) but to use some meaningful business logic to do it. Main purpose of this package is to provide extended versions of standard Kernel functions like `==/2`, `!=/2` which will rely on Equalable protocol implementation for given pair of types. Protocol itself is pretty similar to [Eq](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Eq.html) Haskell type class (but can be applied to pair of values of different types as well).
+Protocol which describes **symmetric** equivalence relation for pair of types. There are cases where we want to define equivalence relation between two terms not just using term values according standard Erlang/Elixir [equivalence rules](https://hexdocs.pm/elixir/Kernel.html#==/2) but to use some meaningful business logic to do it. Main purpose of this package is to provide extended versions of standard Kernel functions like `==/2` and `!=/2` which will rely on Equalable protocol implementation for given pair of types. Protocol itself is pretty similar to [Eq](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Eq.html) Haskell type class (but can be applied to pair of values of different types as well).
 
 [![Hex](https://raw.githubusercontent.com/tim2CF/static-asserts/master/build-passing.svg?sanitize=true)](https://hex.pm/packages/equalable/)
 [![Documentation](https://raw.githubusercontent.com/tim2CF/static-asserts/master/documentation-passing.svg?sanitize=true)](https://hexdocs.pm/equalable/)
@@ -140,7 +140,7 @@ false
 
 ## Utilities
 
-`Eq` module provides utilities and infix shortcuts related to equivalence relation:
+`Eq` module provides utilities and infix shortcuts for equivalence relation:
 
 | Kernel.fn/2 | Eq.fn/2 | Eq infix shortcut |
 |-------------|---------|-------------------|
