@@ -1,6 +1,6 @@
 defprotocol Equalable do
   @moduledoc """
-  Protocol which describes equivalence relation
+  Protocol which describes symmetric equivalence relation for pair of types
   """
 
   @type t :: Equalable.t()
@@ -13,6 +13,10 @@ defprotocol Equalable do
 end
 
 defmodule Eq do
+  @moduledoc """
+  Utilities which help to implement and use `Equalable` protocol for pair of types/values
+  """
+
   @type left :: term
   @type right :: term
 
