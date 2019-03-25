@@ -5,6 +5,8 @@ Protocol which describes **symmetric** equivalence relation for pair of types. T
 [![Hex](https://raw.githubusercontent.com/tim2CF/static-asserts/master/build-passing.svg?sanitize=true)](https://hex.pm/packages/equalable/)
 [![Documentation](https://raw.githubusercontent.com/tim2CF/static-asserts/master/documentation-passing.svg?sanitize=true)](https://hexdocs.pm/equalable/)
 
+<img src="priv/img/logo.png" width="300"/>
+
 ## Installation
 
 The package can be installed by adding `equalable` to your list of dependencies in `mix.exs`:
