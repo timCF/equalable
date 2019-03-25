@@ -150,13 +150,17 @@ defmodule Eq do
   end
 
   @doc """
-  Imports `Eq.defequalable/3` macro helpers
+  Imports `Eq.defequalable/3`, `Eq.<~>/2` and `Eq.<|>/2` macro helpers
 
   ## Examples
 
   ```
   iex> use Eq
   Eq
+  iex> 1 <~> 1
+  true
+  iex> 1 <|> 2
+  true
   ```
   """
   defmacro __using__(_) do
