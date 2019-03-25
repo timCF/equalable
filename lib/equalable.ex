@@ -111,6 +111,45 @@ defmodule Eq do
   end
 
   @doc """
+  Infix shortcut for `Eq.equal?/2`
+
+  ## Examples
+  ```
+  iex> use Eq
+  Eq
+  iex> 1 <~> 1
+  true
+  iex> 1 <~> :hello
+  false
+  ```
+  """
+  defmacro left <~> right do
+    quote do
+      unquote(left)
+      |> Eq.equal?(unquote(right))
+    end
+  end
+
+  @doc """
+  Infix shortcut for `Eq.not_equal?/2`
+  ## Examples
+  ```
+  iex> use Eq
+  Eq
+  iex> 1 <|> 1
+  false
+  iex> 1 <|> :hello
+  true
+  ```
+  """
+  defmacro left <|> right do
+    quote do
+      unquote(left)
+      |> Eq.not_equal?(unquote(right))
+    end
+  end
+
+  @doc """
   Imports `Eq.defequalable/3` macro helpers
 
   ## Examples
@@ -122,7 +161,7 @@ defmodule Eq do
   """
   defmacro __using__(_) do
     quote do
-      import Eq, only: [defequalable: 3]
+      import Eq, only: [defequalable: 3, <~>: 2, <|>: 2]
     end
   end
 

@@ -1,9 +1,9 @@
 # Equalable
 
-Protocol which describes equivalence relation. Implementation is made for pair of types (it is **symmetric**). There are cases where we want to define equivalence relation between two terms not just by term values according standard Erlang/Elixir [equivalence rules](https://hexdocs.pm/elixir/Kernel.html#==/2) but to use some meaningful business logic to do it. Main purpose of this package is to provide extended versions of standard Kernel functions like `==/2`, `!=/2` which will rely on Equalable protocol implementation for given pair of types. Protocol itself is pretty similar to [Eq](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Eq.html) Haskell type class (but can be applied to pair of values of different types as well).
+Protocol which describes **symmetric** equivalence relation for pair of types. There are cases where we want to define equivalence relation between two terms not just by term values according standard Erlang/Elixir [equivalence rules](https://hexdocs.pm/elixir/Kernel.html#==/2) but to use some meaningful business logic to do it. Main purpose of this package is to provide extended versions of standard Kernel functions like `==/2`, `!=/2` which will rely on Equalable protocol implementation for given pair of types. Protocol itself is pretty similar to [Eq](http://hackage.haskell.org/package/base-4.12.0.0/docs/Data-Eq.html) Haskell type class (but can be applied to pair of values of different types as well).
 
 [![Hex](https://raw.githubusercontent.com/tim2CF/static-asserts/master/build-passing.svg?sanitize=true)](https://hex.pm/packages/equalable/)
-[![Documentation](https://raw.githubusercontent.com/tim2CF/static-asserts/master/documentation-passing.svg?sanitize=true)](https://hexdocs.pm/typable/)
+[![Documentation](https://raw.githubusercontent.com/tim2CF/static-asserts/master/documentation-passing.svg?sanitize=true)](https://hexdocs.pm/equalable/)
 
 ## Installation
 
@@ -17,7 +17,7 @@ def deps do
 end
 ```
 
-## Example
+## Motivation
 
 Kernel `==/2` function work pretty fine with standard numeric types like integer or float (and it works even in nested terms like map):
 
@@ -42,7 +42,11 @@ iex> Decimal.new("1.0") |> Map.from_struct
 %{coef: 10, exp: -1, sign: 1}
 ```
 
-And here Equalable protocol can help us. Let's implement equivalence relation between Decimal and Integer, Float and BitString types using existing `Decimal.equal?/2` helper:
+And here Equalable protocol can help us.
+
+## Example
+
+Let's implement equivalence relation between Decimal and Integer, Float and BitString types using existing `Decimal.equal?/2` helper:
 
 ```elixir
 use Eq
@@ -130,4 +134,28 @@ iex> x0 == x1
 false
 iex> Eq.equal?(x0, x1)
 false
+```
+
+## Utilities
+
+`Eq` module provides utilities and infix shortcuts related to equivalence relation:
+
+| Kernel.fn/2 | Eq.fn/2 | Eq infix shortcut |
+|-------------|---------|-------------------|
+| x == y | Eq.equal?(x, y) | x <~> y |
+| x != y | Eq.not_equal?(x, y) | x <&#124;> y |
+
+Example of infix shortcuts usage:
+
+```elixir
+iex> use Eq
+Eq
+iex> Decimal.new("1") <~> Decimal.new("1.0")
+true
+iex> Decimal.new("1.0") <~> Decimal.new("1")
+true
+iex> 1 <|> 2
+true
+iex> 2 <|> 1
+true
 ```
