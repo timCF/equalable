@@ -8,8 +8,28 @@ defprotocol Equalable do
   @doc """
   Accepts struct with fields :left and :right and returns true if left is equivalent to right, else returns false
   """
+  @fallback_to_any true
   @spec equal?(t) :: bool
   def equal?(left_and_right)
+end
+
+defimpl Equalable, for: Any do
+  defmacro __deriving__(mod, _struct, opts) do
+    unless opts[:fields], do: raise ArgumentError, """
+    must supply a list of the field atoms to use in comparison for this type
+    """
+    quote do
+      import Eq, only: [defequalable: 3]
+      defequalable %{__struct__: unquote(mod)} = left :: unquote(mod), %{__struct__: unquote(mod)} = right :: unquote(mod) do
+        field_getter = &Map.take(&1, unquote(opts[:fields]))
+        Eq.equal?(field_getter.(left), field_getter.(right))
+      end
+    end
+  end
+
+	def equal?(%{left: l, right: r}) do
+  	Eq.equal?(l, r)
+  end
 end
 
 defmodule Eq do

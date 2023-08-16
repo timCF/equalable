@@ -14,7 +14,7 @@ The package can be installed by adding `equalable` to your list of dependencies 
 ```elixir
 def deps do
   [
-    {:equalable, "~> 0.1.0"}
+    {:equalable, "~> 0.2.0"}
   ]
 end
 ```
@@ -161,3 +161,12 @@ true
 iex> 2 <|> 1
 true
 ```
+## Deriving
+It is possible to derive the `Equalable` protocol automatically for two structs of the same type
+```elixir
+defmodule Foo do
+  @derive {Equalable, fields: [:a]}
+  defstruct [:a, :b, :c]
+end
+```
+You can then use the `Eq` module as you like for items of type `Foo`.
